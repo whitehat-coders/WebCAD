@@ -3,6 +3,7 @@ main();
 
     var triangleVertexPositionBuffer;
     var squareVertexPositionBuffer;
+    var gl;
 
 function main() {
   var canvas = document.getElementById("glCanvas");
@@ -71,3 +72,15 @@ function drawScene() {
     setMatrixUniforms();
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
 }
+
+ function initGL(canvas) {
+    try {
+      gl = canvas.getContext("experimental-webgl");
+      gl.viewportWidth = canvas.width;
+      gl.viewportHeight = canvas.height;
+    } catch(e) {
+    }
+    if (!gl) {
+      alert("Could not initialise WebGL, sorry :-( ");
+    }
+  }
