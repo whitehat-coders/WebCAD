@@ -7,9 +7,11 @@
 <!--        jquery-3.2.1.js-->
     </head>
     <body>
+        <button id="line" >LINE</button>
+        <button id="squarer">SHAPE</button>
         <canvas id="glCanvas" width="500" height="500"></canvas>
         <script type="text/javascript" src="gl-matrix.js"></script>
-        
+        <script type="text/javascript" src="jquery-3.2.1.js"></script>
         <script id="shader-fs" type="x-shader/x-fragment">
             precision mediump float;
 
@@ -30,6 +32,18 @@
         </script>
         
         <script type="text/javascript" src="webglscript.js"></script>
+        <script>
+        $(document).ready(function(){
+            $("#line").on('click', function(){
+                shape = gl.LINE_STRIP;
+                main();
+            })
+            $("#squarer").on('click', function(){
+                shape = gl.TRIANGLE_STRIP;
+                main();
+            })
+        })
+        </script>
         
         
     </body>

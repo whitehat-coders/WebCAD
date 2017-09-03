@@ -1,3 +1,6 @@
+var canvas = document.getElementById("glCanvas");
+initGL(canvas);
+var shape = gl.TRIANGLE_STRIP;
 
 main();
 
@@ -7,10 +10,10 @@ main();
     var shaderProgram;
     var mvMatrix 
     var pMatrix 
+    
 
 function main() {
-  var canvas = document.getElementById("glCanvas");
-    initGL(canvas);
+  
     initShaders();
     initBuffers();
 
@@ -23,6 +26,7 @@ function main() {
 function initGL(canvas){
     try {
       gl = canvas.getContext("webgl");
+        console.log(gl);
       gl.viewportWidth = canvas.width;
       gl.viewportHeight = canvas.height;
     } catch(e) {
@@ -69,14 +73,15 @@ function initBuffers() {
     squareVertexPositionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
     vertices = [
-         1.0,  1.0,  0.0,
-        -1.0,  1.0,  0.0,
-         1.0, -1.0,  0.0,
-        -1.0, -1.0,  0.0
+         0.5,  0.5,  0.0,
+        -0.5,  0.5,  0.0,
+         0.5, -0.5,  0.0,
+        -0.5, -0.5,  0.0,
+         0.0, -2.0,  0.0
     ];
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     squareVertexPositionBuffer.itemSize = 3;
-    squareVertexPositionBuffer.numItems = 4;
+    squareVertexPositionBuffer.numItems = 5;
 }
 
 function drawScene() {
@@ -103,7 +108,9 @@ function drawScene() {
     gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
     setMatrixUniforms();
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, squareVertexPositionBuffer.numItems);
+    
+    
+    gl.drawArrays(shape, 0, squareVertexPositionBuffer.numItems);
 }
 
 function getShader(gl, id){
