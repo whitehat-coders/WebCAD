@@ -3,17 +3,30 @@ initGL(canvas);
 var shape = gl.TRIANGLE_STRIP;
 
 main();
-
+var bbox = canvas.getBoundingClientRect();
+console.log(bbox);
     var triangleVertexPositionBuffer;
     var squareVertexPositionBuffer;
     var gl;
     var shaderProgram;
-    var mvMatrix 
-    var pMatrix 
-    
+    var mvMatrix ;
+    var pMatrix ;
+    var z = -5;
+    var pointcords = {"points":[]};
+     localStorage.setItem('points', JSON.stringify(pointcords));
+
+function livepoints(x,y){
+    pointcords.points.push(x);
+    pointcords.points.push(y);
+    pointcords.points.push(0);
+    localStorage.setItem('points', JSON.stringify(pointcords));
+    pointcords = JSON.parse(localStorage.getItem('points'));
+    console.log(pointcords);
+    return pointcords;
+}
 
 function main() {
-  
+    
     initShaders();
     initBuffers();
 
@@ -25,10 +38,12 @@ function main() {
 
 function initGL(canvas){
     try {
-      gl = canvas.getContext("webgl");
+        gl = canvas.getContext("webgl");
         console.log(gl);
-      gl.viewportWidth = canvas.width;
-      gl.viewportHeight = canvas.height;
+        
+        gl.viewportWidth = canvas.width=window.innerWidth-25;
+        gl.viewportHeight = canvas.height=window.innerHeight-25;
+        
     } catch(e) {
     }
     if (!gl) {
@@ -65,39 +80,40 @@ function initBuffers() {
         -1.0, -1.0,  0.0,
          1.0, -1.0,  0.0
     ];
-    
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     triangleVertexPositionBuffer.itemSize = 3;
     triangleVertexPositionBuffer.numItems = 3;
     
+   
     squareVertexPositionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
     vertices = [
-         0.5,  0.5,  0.0,
-        -0.5,  0.5,  0.0,
-         0.5, -0.5,  0.0,
-        -0.5, -0.5,  0.0,
-         0.0, -2.0,  0.0
+         1.0,  1.0,  0.0,
+        -1.0,  1.0,  0.0,
+         1.0, -1.0,  0.0,
+        -1.0, -1.0,  0.0
     ];
+    
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
     squareVertexPositionBuffer.itemSize = 3;
-    squareVertexPositionBuffer.numItems = 5;
+    squareVertexPositionBuffer.numItems = 4;
 }
 
 function drawScene() {
     gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    var viewangle = 45 * Math.PI / 180;
-    var aspect = gl.viewportWidth / gl.viewportHeight;
+    var viewangle = 90 * Math.PI / 180;
+    var aspect = (gl.viewportWidth / gl.viewportHeight);
     pMatrix = mat4.create();
     
     
-    mat4.perspective(pMatrix, viewangle, aspect, 0.1, 100.0 );
-    mvMatrix = mat4.create();
-    mat4.identity(mvMatrix);
+    mat4.perspective(pMatrix, viewangle, aspect, 0.1, 100);
     
+    mvMatrix = mat4.create();
+   
     //move to -1.5,0,-7 and draw triangle
-    mat4.translate(mvMatrix, mvMatrix, [-1.5, 0.0, -7.0]);
+    mat4.translate(mvMatrix, mvMatrix, [-0.0, 0.0, -20]);
+      
     gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
     setMatrixUniforms();
@@ -154,3 +170,84 @@ function setMatrixUniforms() {
     gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
   }
 
+
+function drawScene2(z) {
+    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    var viewangle = 45 * Math.PI / 180;
+    var aspect = gl.viewportWidth / gl.viewportHeight;
+    pMatrix = mat4.create();
+    console.log(pMatrix);
+    
+    mat4.perspective(pMatrix, viewangle, aspect, 0.1, 100.0 );
+    
+    mvMatrix = mat4.create();
+    mat4.identity(mvMatrix);
+  
+    //move to -1.5,0,-7 and draw triangle
+    mat4.translate(mvMatrix, mvMatrix, [-0.0, 0.0, z]);
+      
+    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    setMatrixUniforms();
+    gl.drawArrays(gl.TRIANGLES, 0, triangleVertexPositionBuffer.numItems);
+    
+    //move to 3,0,0 from triangle draw standpoint and draw square
+    mat4.translate(mvMatrix, mvMatrix, [3.0, 0.0, 0.0]);
+    gl.bindBuffer(gl.ARRAY_BUFFER, squareVertexPositionBuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, squareVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    setMatrixUniforms();
+    
+    
+    gl.drawArrays(shape, 0, squareVertexPositionBuffer.numItems);
+}
+
+
+function drawScened() {
+    
+    gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    var viewangle = 90 * Math.PI / 180;
+    var aspect = (gl.viewportWidth / gl.viewportHeight);
+    pMatrix = mat4.create();
+    
+    
+    mat4.perspective(pMatrix, viewangle, aspect, 0.1, 100);
+    
+    mvMatrix = mat4.create();
+   
+    //move to -1.5,0,-7 and draw triangle
+    mat4.translate(mvMatrix, mvMatrix, [0, 0, -20]);
+      
+    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleVertexPositionBuffer.itemSize, gl.FLOAT, false, 0, 0);
+    setMatrixUniforms();
+    gl.drawArrays(gl.LINE_STRIP, 0, triangleVertexPositionBuffer.numItems);
+    
+
+}
+
+function initBuffersd(x,y) {
+    triangleVertexPositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+    pointcords = livepoints(x,y);
+    var vertices = pointcords.points;
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    triangleVertexPositionBuffer.itemSize = 3;
+    triangleVertexPositionBuffer.numItems = (pointcords.points.length)/triangleVertexPositionBuffer.itemSize;
+    
+}
+
+function initBuffersm(x,y) {
+    triangleVertexPositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexPositionBuffer);
+    pointcords = JSON.parse(localStorage.getItem('points'));
+    pointcords.points.push(x);
+    pointcords.points.push(y);
+    pointcords.points.push(0);
+    var vertices = pointcords.points;
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+    triangleVertexPositionBuffer.itemSize = 3;
+    triangleVertexPositionBuffer.numItems = (pointcords.points.length)/triangleVertexPositionBuffer.itemSize;
+    
+}
